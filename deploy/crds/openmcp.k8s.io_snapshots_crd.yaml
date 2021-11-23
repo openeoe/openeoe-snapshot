@@ -1,0 +1,232 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: snapshots.openeoe.k8s.io
+  annotations:
+    "api-approved.kubernetes.io": "https://github.com/kubernetes/kubernetes/pull/78458"
+spec:
+  group: openeoe.k8s.io
+  names:
+    kind: Snapshot
+    listKind: SnapshotList
+    plural: snapshots
+    singular: snapshot
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: Created time stamp
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: '-'
+      jsonPath: .spec.snapshotSources[*].resourceCluster
+      name: Cluster
+      type: string
+    - description: '-'
+      jsonPath: .spec.snapshotSources[*].resourceNamespace
+      name: NameSpace
+      type: string
+    - description: '-'
+      jsonPath: .spec.groupSnapshotKey
+      name: GroupSnapshotKey
+      type: string
+    - description: '-'
+      jsonPath: .status.isVolumeSnapshot
+      name: IsVolumeSnapshot
+      type: boolean
+    - description: '-'
+      jsonPath: .status.status
+      name: Status
+      type: string
+    - description: '-'
+      jsonPath: .status.description
+      name: Description
+      type: string
+    - description: '-'
+      jsonPath: .status.progress
+      name: Progress
+      type: string
+    - description: ElapsedTime
+      jsonPath: .status.elapsedTime
+      name: ElapsedTime
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Snapshot is the Schema for the snapshots API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: SnapshotSpec defines the desired state of Snapshot
+            properties:
+              groupSnapshotKey:
+                type: string
+              snapshotPolicy:
+                description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                  Important: Run "operator-sdk generate k8s" to regenerate code after
+                  modifying this file Add custom validation using kubebuilder tags:
+                  https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+                properties:
+                  maxSnapshots:
+                    description: MaxSnapshots is to specify how many snapshots we
+                      want to keep 0 is magic number to indicate un-limited snapshots
+                    type: integer
+                  snapshotIntervalInSecond:
+                    description: SnapshotIntervalInSecond is to specify how often
+                      operator take snapshot 0 is magic number to indicate one-shot
+                      snapshot
+                    format: int64
+                    type: integer
+                  timeoutInSecond:
+                    description: TimeoutInSecond is the maximal allowed time in second
+                      of the entire snapshot process.
+                    format: int64
+                    type: integer
+                type: object
+              snapshotSources:
+                items:
+                  description: SnapshotSource contains the supported snapshot sources.
+                  properties:
+                    VolumeInfo:
+                      items:
+                        properties:
+                          volumeSnapshotDate:
+                            type: string
+                          volumeSnapshotKey:
+                            type: string
+                          volumeSnapshotSize:
+                            type: string
+                        required:
+                        - volumeSnapshotKey
+                        type: object
+                      type: array
+                    resourceCluster:
+                      type: string
+                    resourceName:
+                      type: string
+                    resourceNamespace:
+                      type: string
+                    resourceSnapshotKey:
+                      type: string
+                    resourceType:
+                      type: string
+                    volumeDataSource:
+                      description: VolumeDataSource contains the supported snapshot
+                        sources.
+                      properties:
+                        volumeSnapshotClassName:
+                          type: string
+                        volumeSnapshotKey:
+                          type: string
+                        volumeSnapshotSourceKind:
+                          type: string
+                        volumeSnapshotSourceName:
+                          type: string
+                      required:
+                      - volumeSnapshotKey
+                      type: object
+                  required:
+                  - resourceCluster
+                  - resourceName
+                  - resourceNamespace
+                  - resourceType
+                  type: object
+                type: array
+            required:
+            - snapshotSources
+            type: object
+          status:
+            description: SnapshotStatus defines the observed state of Snapshot
+            properties:
+              currentCount:
+                description: 현재 진행도
+                format: int32
+                type: integer
+              description:
+                type: string
+              elapsedTime:
+                description: LastSuccessDate indicate the time to get snapshot last
+                  time LastSuccessDate metav1.Time `json:"lastSuccessDate,omitempty"`
+                type: string
+              isVolumeSnapshot:
+                description: isVolumeSnapshot
+                type: boolean
+              maxCount:
+                description: 최대 진행도
+                format: int32
+                type: integer
+              progress:
+                description: 최대 컨디션 카운트. currentCount/maxCount
+                type: string
+              snapshotSource:
+                items:
+                  description: SnapshotSource contains the supported snapshot sources.
+                  properties:
+                    VolumeInfo:
+                      items:
+                        properties:
+                          volumeSnapshotDate:
+                            type: string
+                          volumeSnapshotKey:
+                            type: string
+                          volumeSnapshotSize:
+                            type: string
+                        required:
+                        - volumeSnapshotKey
+                        type: object
+                      type: array
+                    resourceCluster:
+                      type: string
+                    resourceName:
+                      type: string
+                    resourceNamespace:
+                      type: string
+                    resourceSnapshotKey:
+                      type: string
+                    resourceType:
+                      type: string
+                    volumeDataSource:
+                      description: VolumeDataSource contains the supported snapshot
+                        sources.
+                      properties:
+                        volumeSnapshotClassName:
+                          type: string
+                        volumeSnapshotKey:
+                          type: string
+                        volumeSnapshotSourceKind:
+                          type: string
+                        volumeSnapshotSourceName:
+                          type: string
+                      required:
+                      - volumeSnapshotKey
+                      type: object
+                  required:
+                  - resourceCluster
+                  - resourceName
+                  - resourceNamespace
+                  - resourceType
+                  type: object
+                type: array
+              status:
+                description: Condition 정보 리스트 Conditions []MigrationCondition `json:"conditions,omitempty"`
+                  Status of the condition, one of True, False, Unknown.
+                type: string
+            required:
+            - description
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

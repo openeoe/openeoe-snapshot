@@ -1,0 +1,24 @@
+apiVersion: openeoe.k8s.io/v1alpha1
+kind: SnapshotRestore
+metadata:
+  name: example-snapshotrestore
+spec:
+  groupSnapshotKey: "1624521742"
+  isGroupSnapshot: false
+  snapshotRestoreSource:
+  - resourceCluster: cluster1
+    resourceNamespace: default
+    resourceType: PersistentVolume
+    resourceSnapshotKey: openeoe/snapshot/1624521742/cluster1/PersistentVolume/iot-gateway-pv
+  - resourceCluster: cluster1
+    resourceNamespace: default
+    resourceType: PersistentVolumeClaim
+    resourceSnapshotKey: openeoe/snapshot/1624521742/cluster1/PersistentVolumeClaim/iot-gateway-pvc
+  - resourceCluster: cluster1
+    resourceNamespace: default
+    resourceType: Deployment
+    resourceSnapshotKey: openeoe/snapshot/1624521742/cluster1/Deployment/iot-gateway
+  - resourceCluster: cluster1
+    resourceNamespace: default
+    resourceType: Service
+    resourceSnapshotKey: openeoe/snapshot/1624521742/cluster1/Service/iot-gateway-sv
